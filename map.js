@@ -48,12 +48,16 @@ function tilesizeFromID(tileid) {
 }
 
 function addTile(relX, relY) {
-  var tile = document.createElement("a-plane");
-  tile.setAttribute("rotation", "-90 0 0");
-  tile.setAttribute("shadow");
-  tile.setAttribute("position", "" + (baseTileSize * relX) + " 0 " + (baseTileSize * relY));
-  tile.setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
-  tile.setAttribute("width", baseTileSize);
-  tile.setAttribute("height", baseTileSize);
-  map.appendChild(tile);
+  return new Promise((resolve, reject) => {
+    var tile = document.createElement("a-plane");
+    tile.setAttribute("rotation", "-90 0 0");
+    tile.setAttribute("shadow");
+    tile.setAttribute("position", "" + (baseTileSize * relX) + " 0 " + (baseTileSize * relY));
+    tile.setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
+    tile.setAttribute("width", baseTileSize);
+    tile.setAttribute("height", baseTileSize);
+    map.appendChild(tile);
+    resolve();
+    // reject("whatever the error");
+  });
 }
