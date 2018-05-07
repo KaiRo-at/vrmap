@@ -1,13 +1,31 @@
 var tileZoom = 19;
+var centerPos = {
+  latitude: 48.18601,
+  longitude: 16.34174,
+}
+var tiles = {};
+var map;
+var baseTileID, baseTileSize;
 
 window.onload = function() {
-  var latitude = 48.18601;
-  var longitude = 16.34174;
-  var tileID = tileIDFromLatlon(latitude, longitude);
-  var tilesize = tilesizeFromID(tileID);
-  document.querySelector("a-plane").setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + tileID.x + "/" + tileID.y + ".png");
-  document.querySelector("a-plane").setAttribute("width", tilesize);
-  document.querySelector("a-plane").setAttribute("height", tilesize);
+  map = document.querySelector("#map");
+  baseTileID = tileIDFromLatlon(centerPos.latitude, centerPos.longitude);
+  baseTileSize = tilesizeFromID(baseTileID);
+  var tilesFromCenter = 3;
+  for (let relX = 0; relX < tilesFromCenter + 1; relX++) {
+    for (let relY = 0; relY < tilesFromCenter + 1; relY++) {
+      addTile(relX, relY);
+      if (relX > 0) {
+        addTile(-relX, relY);
+      }
+      if (relY > 0) {
+        addTile(relX, -relY);
+      }
+      if (relX > 0 && relY > 0) {
+        addTile(-relX, -relY);
+      }
+    }
+  }
 }
 
 function tileIDFromLatlon(latitude_degree, longitude_degree) {
@@ -27,4 +45,15 @@ function tilesizeFromID(tileid) {
   var lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * tileid.y / n)));
   var tileSize = equatorSize * Math.cos(lat_rad) / n;
   return tileSize;
+}
+
+function addTile(relX, relY) {
+  var tile = document.createElement("a-plane");
+  tile.setAttribute("rotation", "-90 0 0");
+  tile.setAttribute("shadow");
+  tile.setAttribute("position", "" + (baseTileSize * relX) + " 0 " + (baseTileSize * relY));
+  tile.setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
+  tile.setAttribute("width", baseTileSize);
+  tile.setAttribute("height", baseTileSize);
+  map.appendChild(tile);
 }
