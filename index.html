@@ -7,11 +7,16 @@
     <script src="https://aframe.io/aframe/dist/aframe-master.min.js"></script>
     <script src="https://unpkg.com/aframe-animation-component/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+    <!-- script src="https://unpkg.com/osmtogeojson/osmtogeojson.js"></script -->
     <script src="map.js"></script>
   </head>
   <body>
     <a-scene background="color: #CFEBFD" cursor="rayOrigin: mouse;">
       <a-entity id="map">
+        <a-entity id="tiles">
+        </a-entity>
+        <a-entity id="items">
+        </a-entity>
       </a-entity>
       <a-entity id="cameraRig" position="0 0 0">
         <!-- camera -->
