@@ -4,7 +4,7 @@ var centerPos = {
   longitude: 16.34177,
 }
 var map, tiles, items;
-var baseTileID, baseTileSize;
+var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
 
 window.onload = function() {
@@ -24,14 +24,14 @@ function tileIDFromLatlon(latlon) {
   return {x: xtile, y: ytile};
 }
 
-function posFromLatlon(latlon) {
+function tileposFromLatlon(latlon) {
   /* Get position x/z numbers from degree-based latitude/longitude values */
   var n = Math.pow(2, tileZoom);
   var lat_rad = latlon.latitude / 180 * Math.PI;
   var xtilepos = n * ((latlon.longitude + 180) / 360);
   var ytilepos = n * (1 - (Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math.PI)) / 2;
-  return {x: baseTileSize * (xtilepos - baseTileID.x),
-          z: baseTileSize * (ytilepos - baseTileID.y)};
+  return {x: xtilepos - baseTileID.x,
+          y: ytilepos - baseTileID.y};
 }
 
 function tilesizeFromID(tileid) {
@@ -64,6 +64,20 @@ function getTagsForXMLFeature(xmlFeature) {
     }
   }
   return tags;
+}
+
+function getPositionStringFromTilepos(tilepos, offset) {
+  if (!offset) {
+    offset = {x: 0, y: 0};
+  }
+  if (!centerOffset) {
+    centerOffset = tileposFromLatlon(centerPos);
+  }
+  posresult = {
+    x: baseTileSize * (tilepos.x + offset.x - centerOffset.x),
+    y: baseTileSize * (tilepos.y + offset.y - centerOffset.y),
+  }
+  return "" + posresult.x + " 0 " + posresult.y;
 }
 
 function loadTrees() {
@@ -121,8 +135,8 @@ function loadGroundTiles() {
 
 function addTree(xmlFeature) {
   return new Promise((resolve, reject) => {
-    var itemPos = posFromLatlon({latitude: Number(xmlFeature.attributes['lat'].value),
-                                 longitude: Number(xmlFeature.attributes['lon'].value)});
+    var itemPos = tileposFromLatlon({latitude: Number(xmlFeature.attributes['lat'].value),
+                                     longitude: Number(xmlFeature.attributes['lon'].value)});
     var tags = getTagsForXMLFeature(xmlFeature);
     var item = document.createElement("a-entity");
     var height = tags.height ? tags.height : 8;
@@ -131,7 +145,7 @@ function addTree(xmlFeature) {
     item.setAttribute("geometry", "primitive: cylinder; height: " + height + "; radius: " + trunkRadius + ";");
     item.setAttribute("material", "color: #80FF80;");
     item.setAttribute("shadow", "");
-    item.setAttribute("position", "" + itemPos.x + " 0 " + itemPos.z);
+    item.setAttribute("position", getPositionStringFromTilepos(itemPos));
     item.setAttribute("data-gpspos", xmlFeature.attributes['lat'].value + "/" + xmlFeature.attributes['lon'].value);
     item.addEventListener('click', function (event) {
       console.log("Tree at " + event.target.getAttribute('data-gpspos'));
@@ -147,7 +161,7 @@ function addTile(relX, relY) {
     var tile = document.createElement("a-plane");
     tile.setAttribute("rotation", "-90 0 0");
     tile.setAttribute("shadow", "");
-    tile.setAttribute("position", "" + (baseTileSize * (relX + 0.5)) + " 0 " + (baseTileSize * (relY + 0.5)));
+    tile.setAttribute("position", getPositionStringFromTilepos({x: relX, y: relY}, {x: 0.5, y: 0.5}));
     tile.setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
     tile.setAttribute("width", baseTileSize);
     tile.setAttribute("height", baseTileSize);
