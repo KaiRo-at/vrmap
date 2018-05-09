@@ -125,13 +125,17 @@ function addTree(xmlFeature) {
                                  longitude: Number(xmlFeature.attributes['lon'].value)});
     var tags = getTagsForXMLFeature(xmlFeature);
     var item = document.createElement("a-entity");
-    var height = tags.height ? tags.height : 5;
-    var trunkRadius = tags.circumference ? tags.circumference / 2 / Math.PI : 0.5;
-    var crownRadius = tags.diameter_crown ? tags.diameter_crown / 2 : 3;
+    var height = tags.height ? tags.height : 8;
+    var trunkRadius = (tags.circumference ? tags.circumference : 1) / 2 / Math.PI;
+    var crownRadius = (tags.diameter_crown ? tags.diameter_crown : 4) / 2;
     item.setAttribute("geometry", "primitive: cylinder; height: " + height + "; radius: " + trunkRadius + ";");
     item.setAttribute("material", "color: #80FF80;");
     item.setAttribute("shadow", "");
     item.setAttribute("position", "" + itemPos.x + " 0 " + itemPos.z);
+    item.setAttribute("data-gpspos", xmlFeature.attributes['lat'].value + "/" + xmlFeature.attributes['lon'].value);
+    item.addEventListener('click', function (event) {
+      console.log("Tree at " + event.target.getAttribute('data-gpspos'));
+    });
     items.appendChild(item);
     resolve();
     // reject("whatever the error");
