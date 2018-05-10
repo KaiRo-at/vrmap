@@ -8,10 +8,10 @@ var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
 var metersPerLevel = 3;
 
-// Use Basemap for now for Austria as they have hires tiles.
 // Mapnik is the default world-wide OpenStreetMap style.
-var tileServer = "https://tilecache.kairo.at/basemaphires/";
-//var tileServer = "https://tilecache.kairo.at/mapnik/";
+var tileServer = "https://tilecache.kairo.at/mapnik/";
+// Basemap offers hires tiles for Austria.
+//var tileServer = "https://tilecache.kairo.at/basemaphires/";
 // Standard Overpass API Server
 var overpassURL = "https://overpass-api.de/api/interpreter";
 
