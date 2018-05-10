@@ -12,6 +12,7 @@
   </head>
   <body>
     <a-scene background="color: #CFEBFD" cursor="rayOrigin: mouse;">
+      <a-entity id="ground" geometry="primitive: box; width: 2000; height: 0.01; depth: 2000" position="0 -0.01 0" material="transparent: true; opacity: 0.01"></a-entity>
       <a-entity id="map">
         <a-entity id="tiles">
         </a-entity>
@@ -22,8 +23,13 @@
         <!-- camera -->
         <a-entity id="head" camera="active: true" look-controls wasd-controls="fly: true; acceleration: 500;" position="0 1.6 0"></a-entity>
         <!-- hand controls -->
-        <a-entity id="left-hand" teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head;"></a-entity>
-        <a-entity id="right-hand" teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head;"></a-entity>
+        <a-mixin id="teleport"
+                 teleport-controls="cameraRig: #cameraRig; button: trackpad; teleportOrigin: #head; collisionEntities: #ground; curveShootingSpeed: 25; curveNumberPoints: 100;"
+        ></a-mixin>
+        <a-entity id="left-hand" mixin="teleport"
+                  oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"></a-entity>
+        <a-entity id="right-hand" mixin="teleport"
+                  oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right;"></a-entity>
       </a-entity>
     </a-scene>
   </body>

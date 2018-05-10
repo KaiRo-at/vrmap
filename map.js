@@ -274,7 +274,8 @@ function addBuilding(jsonFeature) {
                                   (innerWays.length ? "innerPaths: " + innerWays.map(x => x.join(", ")).join(" / ") + "; " : "") +
                                   (height ? "height: " + height : "") +
                                   (minHeight ? "minHeight: " + minHeight : ""));
-    item.setAttribute("material", "color: #FF6600;");
+    var color = tags["building:colour"] ? tags["building:colour"] : "#d9c0d9;"
+    item.setAttribute("material", "color: " + color + ";");
     item.setAttribute("shadow", "");
     item.setAttribute("position", getPositionStringFromTilepos(itemPos));
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[0][0][1] + "/" + jsonFeature.geometry.coordinates[0][0][0]);
@@ -290,6 +291,7 @@ function addBuilding(jsonFeature) {
 function addTile(relX, relY) {
   return new Promise((resolve, reject) => {
     var tile = document.createElement("a-plane");
+    tile.setAttribute("class", "tile");
     tile.setAttribute("rotation", "-90 0 0");
     tile.setAttribute("shadow", "");
     tile.setAttribute("position", getPositionStringFromTilepos({x: relX, y: relY}, {x: 0.5, y: 0.5}));
