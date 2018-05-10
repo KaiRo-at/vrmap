@@ -6,6 +6,9 @@ var centerPos = {
 var map, tiles, items;
 var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
+var metersPerLevel = 3;
+
+var overpassURL = "https://overpass-api.de/api/interpreter";
 
 window.onload = function() {
   map = document.querySelector("#map");
@@ -13,6 +16,7 @@ window.onload = function() {
   items = document.querySelector("#items");
   loadGroundTiles();
   loadTrees();
+  loadBuildings();
 }
 
 function tileIDFromLatlon(latlon) {
@@ -56,6 +60,11 @@ function latlonFromTileID(tileid) {
   return latlon;
 }
 
+function latlonFromJSON(jsonCoordinates) {
+  return {latitude: jsonCoordinates[1],
+          longitude: jsonCoordinates[0]};
+}
+
 function getTagsForXMLFeature(xmlFeature) {
   var tags = {};
   for (tag of xmlFeature.children) {
@@ -66,7 +75,7 @@ function getTagsForXMLFeature(xmlFeature) {
   return tags;
 }
 
-function getPositionStringFromTilepos(tilepos, offset) {
+function getPositionFromTilepos(tilepos, offset) {
   if (!offset) {
     offset = {x: 0, y: 0};
   }
@@ -77,22 +86,38 @@ function getPositionStringFromTilepos(tilepos, offset) {
     x: baseTileSize * (tilepos.x + offset.x - centerOffset.x),
     y: baseTileSize * (tilepos.y + offset.y - centerOffset.y),
   }
-  return "" + posresult.x + " 0 " + posresult.y;
+  return {x: posresult.x,
+          y: 0,
+          z: posresult.y};
 }
 
-function loadTrees() {
+function getRelativePositionFromTilepos(tilepos, reference) {
+  posresult = {
+    x: baseTileSize * (tilepos.x - reference.x),
+    y: baseTileSize * (tilepos.y - reference.y),
+  }
+  return {x: posresult.x,
+          y: 0,
+          z: posresult.y};
+}
+
+function getPositionStringFromTilepos(tilepos, offset) {
+  var pos = getPositionFromTilepos(tilepos, offset);
+  return "" + pos.x + " " + pos.y + " " + pos.z;
+}
+
+function getBoundingBoxString() {
   var startPos = latlonFromTileID({x: baseTileID.x - tilesFromCenter,
-                                   y: baseTileID.y + tilesFromCenter});
-  var endPos = latlonFromTileID({x: baseTileID.x + tilesFromCenter,
+                                   y: baseTileID.y + tilesFromCenter + 1});
+  var endPos = latlonFromTileID({x: baseTileID.x + tilesFromCenter + 1,
                                  y: baseTileID.y - tilesFromCenter});
-  var url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(
-      "node[natural=tree]"
-      + "("
-      + startPos.latitude + "," + startPos.longitude + ","
-      + endPos.latitude + "," + endPos.longitude
-      + ");" + "out;"
-  );
-  return fetch(url)
+  return startPos.latitude + "," + startPos.longitude + "," +
+         endPos.latitude + "," + endPos.longitude;
+}
+
+function fetchFromOverpass(opQuery) {
+  return new Promise((resolve, reject) => {
+    fetch(overpassURL + "?data=" + encodeURIComponent(opQuery))
     .then((response) => {
       if (response.ok) {
         return response.text();
@@ -104,10 +129,44 @@ function loadTrees() {
     .then((response) => {
       var parser = new DOMParser();
       var itemData = parser.parseFromString(response, "application/xml");
-      //var itemJSON = osmtogeojson(itemData); // if we ever want to do geoJSON here
-      for (feature of itemData.children[0].children) {
-        if (feature.nodeName == "node") {
+      var itemJSON = osmtogeojson(itemData);
+      resolve(itemJSON);
+    })
+    .catch((reason) => { reject(reason); });
+  });
+}
+
+function loadTrees() {
+  var opQuery = "node[natural=tree]" + "(" + getBoundingBoxString() + ");" +
+                "out;";
+  return fetchFromOverpass(opQuery)
+    .then((itemJSON) => {
+      for (feature of itemJSON.features) {
+        if (feature.geometry.type == "Point") {
           addTree(feature);
+        }
+        else {
+          console.log("Couldn't draw tree with geometry type " +
+                      feature.geometry.type);
+        }
+      }
+    })
+    .catch((reason) => { console.log(reason); });
+}
+
+function loadBuildings() {
+  var opQuery = "(way[building]" + "(" + getBoundingBoxString() + ");" +
+                "rel[building]" + "(" + getBoundingBoxString() + "););" +
+                "out body;>;out skel qt;";
+  return fetchFromOverpass(opQuery)
+    .then((itemJSON) => {
+      for (feature of itemJSON.features) {
+        if (feature.geometry.type == "Polygon") {
+          addBuilding(feature);
+        }
+        else {
+          console.log("Couldn't draw tree with geometry type " +
+                      feature.geometry.type);
         }
       }
     })
@@ -133,22 +192,94 @@ function loadGroundTiles() {
   }
 }
 
-function addTree(xmlFeature) {
+function addTree(jsonFeature) {
   return new Promise((resolve, reject) => {
-    var itemPos = tileposFromLatlon({latitude: Number(xmlFeature.attributes['lat'].value),
-                                     longitude: Number(xmlFeature.attributes['lon'].value)});
-    var tags = getTagsForXMLFeature(xmlFeature);
+    var itemPos = tileposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates));
+    var tags = jsonFeature.properties.tags ? jsonFeature.properties.tags : jsonFeature.properties;
     var item = document.createElement("a-entity");
+    item.setAttribute("class", "tree");
+    var trunk = document.createElement("a-entity");
+    trunk.setAttribute("class", "trunk");
+    var crown = document.createElement("a-entity");
+    crown.setAttribute("class", "crown");
     var height = tags.height ? tags.height : 8;
     var trunkRadius = (tags.circumference ? tags.circumference : 1) / 2 / Math.PI;
-    var crownRadius = (tags.diameter_crown ? tags.diameter_crown : 4) / 2;
-    item.setAttribute("geometry", "primitive: cylinder; height: " + height + "; radius: " + trunkRadius + ";");
-    item.setAttribute("material", "color: #80FF80;");
+    var crownRadius = (tags.diameter_crown ? tags.diameter_crown : 3) / 2;
+    // leaf_type is broadleaved, needleleaved, mixed or rarely something else.
+    if (tags["leaf_type"] == "needleleaved") { // special shape for needle-leaved trees
+      var trunkHeight = height * 0.5;
+      var crownHeight = height * 0.8;
+      trunk.setAttribute("geometry", "primitive: cylinder; height: " + trunkHeight + "; radius: " + trunkRadius + ";");
+      trunk.setAttribute("material", "color: #b27f36;");
+      trunk.setAttribute("position", "0 " + (trunkHeight / 2) + " 0");
+      crown.setAttribute("geometry", "primitive: cone; height: " + crownHeight + "; radiusBottom: " + crownRadius + "; radiusTop: 0;");
+      crown.setAttribute("material", "color: #80ff80;");
+      crown.setAttribute("position", "0 " + (height - crownHeight / 2) + " 0");
+    }
+    else { // use a simple typical broadleaved-type shape
+      var trunkHeight = height - crownRadius;
+      trunk.setAttribute("geometry", "primitive: cylinder; height: " + trunkHeight + "; radius: " + trunkRadius + ";");
+      trunk.setAttribute("material", "color: #b27f36;");
+      trunk.setAttribute("position", "0 " + (trunkHeight / 2) + " 0");
+      crown.setAttribute("geometry", "primitive: sphere; radius: " + crownRadius + ";");
+      crown.setAttribute("material", "color: #80ff80;");
+      crown.setAttribute("position", "0 " + trunkHeight + " 0");
+    }
     item.setAttribute("shadow", "");
     item.setAttribute("position", getPositionStringFromTilepos(itemPos));
-    item.setAttribute("data-gpspos", xmlFeature.attributes['lat'].value + "/" + xmlFeature.attributes['lon'].value);
+    item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[1] + "/" + jsonFeature.geometry.coordinates[0]);
     item.addEventListener('click', function (event) {
-      console.log("Tree at " + event.target.getAttribute('data-gpspos'));
+      console.log("Tree at " + event.target.parentElement.getAttribute('data-gpspos'));
+    });
+    item.appendChild(trunk);
+    item.appendChild(crown);
+    items.appendChild(item);
+    resolve();
+    // reject("whatever the error");
+  });
+}
+
+function addBuilding(jsonFeature) {
+  return new Promise((resolve, reject) => {
+    var itemPos = tileposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates[0][0]));
+    var tags = jsonFeature.properties.tags ? jsonFeature.properties.tags : jsonFeature.properties;
+    var item = document.createElement("a-entity");
+    item.setAttribute("class", "building");
+    var height = tags.height ? tags.height : null;
+    if (!height && tags["building:levels"]) {
+      height = tags["building:levels"] * metersPerLevel;
+    }
+    var minHeight = tags.min_height ? tags.min_height : null;
+    if (!minHeight && tags["building:min_level"]) {
+      minHeight = tags["building:min_level"] * metersPerLevel;
+    }
+    var outerPoints = [];
+    var innerWays = [];
+    for (let way of jsonFeature.geometry.coordinates) {
+      let wayPoints = [];
+      for (let point of way) {
+        let tpos = tileposFromLatlon(latlonFromJSON(point));
+        let ppos = getRelativePositionFromTilepos(tpos, itemPos);
+        wayPoints.push("" + ppos.x + " " + ppos.z);
+      }
+      if (!outerPoints.length) {
+        outerPoints = wayPoints;
+      }
+      else {
+        innerWays.push(wayPoints);
+      }
+    }
+    // Note that for now only one inner way (hole) is supported.
+    item.setAttribute("geometry", "primitive: building; outerPoints: " + outerPoints.join(", ") + "; " +
+                                  (innerWays.length ? "innerPaths: " + innerWays.map(x => x.join(", ")).join(" / ") + "; " : "") +
+                                  (height ? "height: " + height : "") +
+                                  (minHeight ? "minHeight: " + minHeight : ""));
+    item.setAttribute("material", "color: #FF6600;");
+    item.setAttribute("shadow", "");
+    item.setAttribute("position", getPositionStringFromTilepos(itemPos));
+    item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[0][0][1] + "/" + jsonFeature.geometry.coordinates[0][0][0]);
+    item.addEventListener('click', function (event) {
+      console.log("Building at " + event.target.getAttribute('data-gpspos'));
     });
     items.appendChild(item);
     resolve();
@@ -170,3 +301,51 @@ function addTile(relX, relY) {
     // reject("whatever the error");
   });
 }
+
+AFRAME.registerGeometry('building', {
+  schema: {
+    outerPoints: { type: 'array', default: ['0 0', '1 0', '1 1', '0 1'], },
+    innerPaths: {
+      parse: function (value) {
+        return value.length ? value.split('/').map(part => part.split(",").map(val => val.trim())) : [];
+      },
+      default: [],
+    },
+    height: { type: 'number', default: 0 },
+    minHeight: { type: 'number', default: 0 },
+  },
+
+  init: function (data) {
+    var opoints = data.outerPoints.map(function (point) {
+        var coords = point.split(' ').map(x => parseFloat(x));
+        return new THREE.Vector2(coords[0], coords[1]);
+    });
+    var ipaths = data.innerPaths.map(way => way.map(function (point) {
+        var coords = point.split(' ').map(x => parseFloat(x));
+        return new THREE.Vector2(coords[0], coords[1]);
+    }));
+    var shape = new THREE.Shape(opoints);
+    var outerLength = shape.getLength();
+    if (ipaths.length) {
+      for (ipoints of ipaths) {
+        var holePath = new THREE.Path(ipoints);
+        shape.holes.push(holePath);
+      }
+    }
+    // Extrude from a 2D shape into a 3D object with a height.
+    var height = data.height - data.minHeight;
+    if (!height) {
+      height = Math.min(10, outerLength / 5);
+    }
+    var geometry = new THREE.ExtrudeGeometry(shape, {amount: height, bevelEnabled: false});
+    // As Y is the coordinate going up, let's rotate by 90° to point Z up.
+    geometry.rotateX(-Math.PI / 2);
+    // Rotate around Y and Z as well to make it show up correctly.
+    geometry.rotateY(Math.PI);
+    geometry.rotateZ(Math.PI);
+    // Now we would point under ground, move up the height, and any above-ground space as well.
+    geometry.translate (0, height + data.minHeight, 0);
+    geometry.center;
+    this.geometry = geometry;
+  }
+});

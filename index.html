@@ -7,7 +7,7 @@
     <script src="https://aframe.io/aframe/dist/aframe-master.min.js"></script>
     <script src="https://unpkg.com/aframe-animation-component/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
-    <!-- script src="https://unpkg.com/osmtogeojson/osmtogeojson.js"></script -->
+    <script src="https://unpkg.com/osmtogeojson/osmtogeojson.js"></script>
     <script src="map.js"></script>
   </head>
   <body>
@@ -20,7 +20,7 @@
       </a-entity>
       <a-entity id="cameraRig" position="0 0 0">
         <!-- camera -->
-        <a-entity id="head" camera="active: true" look-controls wasd-controls="fly: true;" position="0 1.6 0"></a-entity>
+        <a-entity id="head" camera="active: true" look-controls wasd-controls="fly: true; acceleration: 500;" position="0 1.6 0"></a-entity>
         <!-- hand controls -->
         <a-entity id="left-hand" teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head;"></a-entity>
         <a-entity id="right-hand" teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head;"></a-entity>
