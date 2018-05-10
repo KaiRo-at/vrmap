@@ -8,6 +8,11 @@ var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
 var metersPerLevel = 3;
 
+// Use Basemap for now for Austria as they have hires tiles.
+// Mapnik is the default world-wide OpenStreetMap style.
+var tileServer = "https://tilecache.kairo.at/basemaphires/";
+//var tileServer = "https://tilecache.kairo.at/mapnik/";
+// Standard Overpass API Server
 var overpassURL = "https://overpass-api.de/api/interpreter";
 
 window.onload = function() {
@@ -295,7 +300,7 @@ function addTile(relX, relY) {
     tile.setAttribute("rotation", "-90 0 0");
     tile.setAttribute("shadow", "");
     tile.setAttribute("position", getPositionStringFromTilepos({x: relX, y: relY}, {x: 0.5, y: 0.5}));
-    tile.setAttribute("src", "https://tilecache.kairo.at/mapnik/" + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
+    tile.setAttribute("src", tileServer + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
     tile.setAttribute("width", baseTileSize);
     tile.setAttribute("height", baseTileSize);
     tiles.appendChild(tile);
