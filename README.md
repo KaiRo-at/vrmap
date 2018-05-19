@@ -1,4 +1,4 @@
-# VR Maps
+# VR Map
 A WebVR demo that presents OpenStreetMap data in a virtual reality environment
 right inside the browser.
 
