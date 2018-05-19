@@ -16,6 +16,9 @@ var tileServer = "https://tilecache.kairo.at/mapnik/";
 var overpassURL = "https://overpass-api.de/api/interpreter";
 
 window.onload = function() {
+  document.querySelector("#introDialogCloseButton").onclick = function(event) {
+    event.target.parentElement.parentElement.classList.add("hidden")
+  };
   map = document.querySelector("#map");
   tiles = document.querySelector("#tiles");
   items = document.querySelector("#items");

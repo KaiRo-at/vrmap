@@ -1,0 +1,43 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+#introDialog {
+  position: absolute;
+  top: 20%;
+  right: 0;
+  left: 0;
+  width: 50ch;
+  max-width: 92%;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, .8);
+  border: 0;
+  margin: auto;
+  padding: .5em;
+  border-radius: 5px;
+}
+
+#introDialog.hidden {
+  top: -1000%;
+  display: block;
+}
+
+h1 {
+  margin: 0 0 .5em;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+.dialogButtonLine {
+  text-align: center;
+}
+
