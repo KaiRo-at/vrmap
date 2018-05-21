@@ -26,6 +26,8 @@ function addTree(jsonFeature) {
     var tags = jsonFeature.properties.tags ? jsonFeature.properties.tags : jsonFeature.properties;
     var item = document.createElement("a-entity");
     item.setAttribute("class", "tree");
+    item.setAttribute("data-reltilex", Math.floor(itemPos.x));
+    item.setAttribute("data-reltiley", Math.floor(itemPos.y));
     var trunk = document.createElement("a-entity");
     trunk.setAttribute("class", "trunk");
     var crown = document.createElement("a-entity");
@@ -53,12 +55,8 @@ function addTree(jsonFeature) {
       crown.setAttribute("material", "color: #80ff80;");
       crown.setAttribute("position", "0 " + trunkHeight + " 0");
     }
-    //item.setAttribute("shadow", "");
     item.setAttribute("position", getPositionStringFromTilepos(itemPos));
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[1] + "/" + jsonFeature.geometry.coordinates[0]);
-    item.addEventListener('click', function (event) {
-      console.log("Tree at " + event.target.parentElement.getAttribute('data-gpspos'));
-    });
     item.appendChild(trunk);
     item.appendChild(crown);
     items.appendChild(item);

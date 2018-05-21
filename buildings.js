@@ -58,12 +58,8 @@ function addBuilding(jsonFeature) {
                                   (minHeight ? "minHeight: " + minHeight : ""));
     var color = tags["building:colour"] ? tags["building:colour"] : "#d9c0d9;"
     item.setAttribute("material", "color: " + color + ";");
-    //item.setAttribute("shadow", "");
     item.setAttribute("position", getPositionStringFromTilepos(itemPos));
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[0][0][1] + "/" + jsonFeature.geometry.coordinates[0][0][0]);
-    item.addEventListener('click', function (event) {
-      console.log("Building at " + event.target.getAttribute('data-gpspos'));
-    });
     items.appendChild(item);
     resolve();
     // reject("whatever the error");
