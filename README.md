@@ -29,6 +29,3 @@ General limitations:
    KaiRo's front door in Vienna, Austria.
  * Only a small area is loaded by default and no further data is added as you
    move around.
- * The standard wasd-controls of A-Frame do not allow movement limity, so you
-   can navigate underneath the ground level via the keyboard.
- * Using VR controllers, you can't leave the ground level when moving around.

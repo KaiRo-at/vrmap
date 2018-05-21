@@ -12,8 +12,11 @@
     <script src="https://aframe.io/aframe/dist/aframe-master.min.js"></script>
     <script src="https://unpkg.com/aframe-animation-component/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras/dist/aframe-extras.controls.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras/dist/aframe-extras.pathfinding.min.js"></script><!-- errors on controls if not present? -->
     <script src="https://unpkg.com/osmtogeojson/osmtogeojson.js"></script>
     <script src="map.js"></script>
+    <script src="position-limit.js"></script>
     <script src="conversions.js"></script>
     <script src="tiles.js"></script>
     <script src="trees.js"></script>
@@ -26,8 +29,8 @@
         and buildings) in a web-based Virtual Reality environment.
       </p>
       <p>You can use mouse drags to pan around and the W/A/S/D keys to fly
-        through the scene, or switch to VR mode and use the trackpad on your
-        controller to teleport around (on the ground level only right now).
+        through the scene, or switch to VR mode and use the trigger on your
+        controller to teleport around (or the trackpad to fly).
       </p>
       <p>One of the limitations is that currently only a small area gets loaded
         and no additional scenery will get added when moving around.
@@ -41,7 +44,7 @@
         <button id="introDialogCloseButton">Start</button>
       </p>
     </div>
-    <a-scene background="color: #CFEBFD" cursor="rayOrigin: mouse;">
+    <a-scene background="color: #CFEBFD">
       <a-entity id="ground" geometry="primitive: box; width: 2000; height: 0.01; depth: 2000" position="0 -0.01 0" material="transparent: true; opacity: 0.01"></a-entity>
       <a-entity id="map">
         <a-entity id="tiles">
@@ -49,12 +52,12 @@
         <a-entity id="items">
         </a-entity>
       </a-entity>
-      <a-entity id="cameraRig" position="0 0 0">
+      <a-entity id="cameraRig" position="0 0 0" movement-controls="speed: 1; fly: true; camera: #head;" position-limit="ymin: 0; ymax: 100;">
         <!-- camera -->
-        <a-entity id="head" camera="active: true" look-controls wasd-controls="fly: true; acceleration: 500;" position="0 1.6 0"></a-entity>
+        <a-entity id="head" camera="active: true" look-controls position="0 1.6 0"></a-entity>
         <!-- hand controls -->
         <a-mixin id="teleport"
-                 teleport-controls="cameraRig: #cameraRig; button: trackpad; teleportOrigin: #head; collisionEntities: #ground; curveShootingSpeed: 25; curveNumberPoints: 100;"
+                 teleport-controls="cameraRig: #cameraRig; button: trigger; teleportOrigin: #head; collisionEntities: #ground; curveShootingSpeed: 25; curveNumberPoints: 100;"
         ></a-mixin>
         <a-entity id="left-hand" mixin="teleport"
                   oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"></a-entity>
