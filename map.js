@@ -3,13 +3,24 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var tileZoom = 19;
-var centerPos = {
-  latitude: 48.18594,
-  longitude: 16.34177,
-}
+var locationPresets = [
+  { title: "Wien Gaudenzdorf",
+    latitude: 48.18594,
+    longitude: 16.34177,
+  },
+  { title: "Wien Stockwerk",
+    latitude: 48.19207,
+    longitude: 16.33610,
+  },
+  { title: "New York Plaza",
+    latitude: 40.70245,
+    longitude: -74.01282,
+  },
+]
+var centerPos = locationPresets[0];
 var map, tiles, items;
 var baseTileID, baseTileSize, centerOffset;
-var tilesFromCenter = 3;
+var tilesFromCenter = 5;
 
 // Mapnik is the default world-wide OpenStreetMap style.
 var tileServer = "https://tilecache.kairo.at/mapnik/";
