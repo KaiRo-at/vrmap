@@ -7,15 +7,18 @@ function loadTrees() {
                 "out;";
   return fetchFromOverpass(opQuery)
     .then((itemJSON) => {
+      var count = 0;
       for (feature of itemJSON.features) {
         if (feature.geometry.type == "Point") {
           addTree(feature);
+          count++;
         }
         else {
           console.log("Couldn't draw tree with geometry type " +
                       feature.geometry.type);
         }
       }
+      console.log("Loaded " + count + " trees.");
     })
     .catch((reason) => { console.log(reason); });
 }

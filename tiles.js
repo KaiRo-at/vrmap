@@ -5,20 +5,26 @@
 function loadGroundTiles() {
   baseTileID = tileIDFromLatlon(centerPos);
   baseTileSize = tilesizeFromID(baseTileID);
+  var count = 0;
   for (let relX = 0; relX < tilesFromCenter + 1; relX++) {
     for (let relY = 0; relY < tilesFromCenter + 1; relY++) {
       addTile(relX, relY);
+      count++;
       if (relX > 0) {
         addTile(-relX, relY);
+        count++;
       }
       if (relY > 0) {
         addTile(relX, -relY);
+        count++;
       }
       if (relX > 0 && relY > 0) {
         addTile(-relX, -relY);
+        count++;
       }
     }
   }
+  console.log("Loaded " + count + " tiles.");
 }
 
 function addTile(relX, relY) {

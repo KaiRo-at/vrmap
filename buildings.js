@@ -26,15 +26,18 @@ function loadBuildings() {
                 "out body;>;out skel qt;";
   return fetchFromOverpass(opQuery)
     .then((itemJSON) => {
+      var count = 0;
       for (feature of itemJSON.features) {
         if (feature.geometry.type == "Polygon") {
           addBuilding(feature);
+          count++;
         }
         else {
           console.log("Couldn't draw building with geometry type " +
                       feature.geometry.type);
         }
       }
+      console.log("Loaded " + count + " buildings.");
     })
     .catch((reason) => { console.log(reason); });
 }
