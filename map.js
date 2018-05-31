@@ -10,7 +10,6 @@ var centerPos = {
 var map, tiles, items;
 var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
-var metersPerLevel = 3;
 
 // Mapnik is the default world-wide OpenStreetMap style.
 var tileServer = "https://tilecache.kairo.at/mapnik/";
