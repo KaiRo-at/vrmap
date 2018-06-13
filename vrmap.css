@@ -18,12 +18,20 @@ body {
   left: 0;
   width: 50ch;
   max-width: 92%;
+  max-height: 96%;
+  overflow: auto;
   z-index: 10;
   background-color: rgba(255, 255, 255, .8);
   border: 0;
   margin: auto;
   padding: .5em;
   border-radius: 5px;
+}
+
+@media all and (max-height: 800px) {
+  #introDialog {
+    top: 2%;
+  }
 }
 
 #introDialog.hidden {
@@ -37,7 +45,32 @@ h1 {
   font-size: 1.5em;
 }
 
+#locationSettings select,
+#locationSettings input,
+#locationSettings button {
+  font-size: inherit;
+}
+
+.coords {
+  width: 15ch;
+}
+
+#legalinfo {
+  font-size: 0.75em;
+}
+
 .dialogButtonLine {
   text-align: center;
 }
 
+@media all and (max-width: 450px) {
+  body {
+    font-size: 0.85em;
+  }
+  h1 {
+    font-size: 1.3em;
+  }
+  #legalinfo {
+    font-size: 0.85em;
+  }
+}

@@ -65,7 +65,8 @@ var locationPresets = [
     longitude: 139.69481,
   },
 ]
-var centerPos = locationPresets[0];
+var centerPos = { latitude: locationPresets[0].latitude,
+                  longitude: locationPresets[0].longitude };
 var map, tiles, items;
 var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
@@ -78,12 +79,61 @@ var tileServer = "https://tilecache.kairo.at/mapnik/";
 var overpassURL = "https://overpass-api.de/api/interpreter";
 
 window.onload = function() {
-  document.querySelector("#introDialogCloseButton").onclick = function(event) {
-    event.target.parentElement.parentElement.classList.add("hidden")
+  // Close intro dialog on clicking its button.
+  document.querySelector("#introDialogCloseButton").onclick = event => {
+    event.target.parentElement.parentElement.classList.add("hidden");
   };
+  // Close intro dialog when entering VR mode.
+  document.querySelector('a-scene').addEventListener('enter-vr', event => {
+    document.querySelector("#introDialogCloseButton").click();
+  });
+  // Load location presets and subdialog.
+  let presetSel = document.querySelector("#locationPresets");
+  let locLatInput = document.querySelector("#locLatitude");
+  let locLonInput = document.querySelector("#locLongitude");
+  presetSel.onchange = function(event) {
+    if (event.target.selectedIndex >= 0 && event.target.value >= 0) {
+      let preset = locationPresets[event.target.value];
+      locLatInput.value = preset.latitude;
+      locLonInput.value = preset.longitude;
+    }
+    else {
+      locLatInput.value = "";
+      locLonInput.value = "";
+      if (event.target.value == -2) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          locLatInput.value = pos.coords.latitude;
+          locLonInput.value = pos.coords.longitude;
+        });
+      }
+    }
+  };
+  for (let i = -2; i < locationPresets.length; i++) {
+    var opt = document.createElement("option");
+    opt.value = i;
+    if (i == -2) { opt.text = "Get Your Location"; }
+    else if (i == -1) { opt.text = "Set Custom Location"; }
+    else { opt.text = locationPresets[i].title; }
+    presetSel.add(opt, null);
+  }
+  presetSel.value = 0;
+  locLatInput.value = centerPos.latitude;
+  locLonInput.value = centerPos.longitude;
+  document.querySelector("#locationLoadButton").onclick = event => {
+    centerPos.latitude = locLatInput.valueAsNumber;
+    centerPos.longitude = locLonInput.valueAsNumber;
+    loadScene();
+  };
+  // Load objects into scene.
   map = document.querySelector("#map");
   tiles = document.querySelector("#tiles");
   items = document.querySelector("#items");
+  loadScene();
+}
+
+function loadScene() {
+  while (tiles.firstChild) { tiles.removeChild(tiles.firstChild); }
+  while (items.firstChild) { items.removeChild(items.firstChild); }
   loadGroundTiles();
   loadTrees();
   loadBuildings();

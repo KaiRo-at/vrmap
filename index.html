@@ -25,6 +25,7 @@
   <body>
     <div id="introDialog">
       <h1>VR Map - OpenStreetMap goes WebVR</h1>
+      <div id="generalinfo">
       <p>This experimental app displays OpenStreetMap data (ground tiles, trees,
         and buildings) in a web-based Virtual Reality environment.
       </p>
@@ -35,6 +36,14 @@
       <p>One of the limitations is that currently only a small area gets loaded
         and no additional scenery will get added when moving around.
       </p>
+      </div>
+      <div id="locationSettings">
+      <select id="locationPresets"></select><br>
+      <input type="number" class="coords" id="locLatitude" placeholder="latitude" step="0.00001" min="-90" max="90"> /
+      <input type="number" class="coords" id="locLongitude" placeholder="longitude" step="0.00001" min="-180" max="180"><br>
+      <button id="locationLoadButton">Load location</button>
+      </div>
+      <div id="legalinfo">
       <p>The source code can be found as
         <a href="https://github.com/KaiRo-at/vrmap">KaiRo-at/vrmap at GitHub</a>.
       </p>
@@ -43,6 +52,7 @@
         contributors, under <a href="http://www.openstreetmap.org/copyright"
         target="_blank">ODbL/CC-BY-SA</a> licenses.
       </p>
+      </div>
       <p class="dialogButtonLine">
         <button id="introDialogCloseButton">Start</button>
       </p>
