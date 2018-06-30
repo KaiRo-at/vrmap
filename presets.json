@@ -1,0 +1,62 @@
+[
+  { "title": "Wien Gaudenzdorf",
+    "latitude": 48.18594,
+    "longitude": 16.34177
+  },
+  { "title": "Wien Stockwerk",
+    "latitude": 48.19207,
+    "longitude": 16.33610
+  },
+  { "title": "Wien Stadtpark",
+    "latitude": 48.20542,
+    "longitude": 16.37911
+  },
+  { "title": "New York Plaza",
+    "latitude": 40.70245,
+    "longitude": -74.01282
+  },
+  { "title": "San Francisco Market & Drumm",
+    "latitude": 37.79375,
+    "longitude": -122.39587
+  },
+  { "title": "SJ South Market Park",
+    "latitude": 37.33226,
+    "longitude": -121.88968
+  },
+  { "title": "Vegas Mirage",
+    "latitude": 36.12167,
+    "longitude": -115.17204
+  },
+  { "title": "Koeln Dom",
+    "latitude": 50.94130,
+    "longitude": 6.95665
+  },
+  { "title": "Bremen",
+    "latitude": 53.0758,
+    "longitude": 8.8072
+  },
+  { "title": "Graz",
+    "latitude": 47.07245,
+    "longitude": 15.44092
+  },
+  { "title": "London St Giles High St",
+    "latitude": 51.51556,
+    "longitude": -0.12681
+  },
+  { "title": "Moscow",
+    "latitude": 55.75412,
+    "longitude": 37.62048
+  },
+  { "title": "Paris Champ de Mars",
+    "latitude": 48.85601,
+    "longitude": 2.29661
+  },
+  { "title": "Warsaw",
+    "latitude": 52.23242,
+    "longitude": 21.00913
+  },
+  { "title": "Tokio",
+    "latitude": 35.69091,
+    "longitude": 139.69481
+  }
+]

@@ -3,70 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var tileZoom = 19;
-var locationPresets = [
-  { title: "Wien Gaudenzdorf",
-    latitude: 48.18594,
-    longitude: 16.34177,
-  },
-  { title: "Wien Stockwerk",
-    latitude: 48.19207,
-    longitude: 16.33610,
-  },
-  { title: "Wien Stadtpark",
-    latitude: 48.20542,
-    longitude: 16.37911,
-  },
-  { title: "New York Plaza",
-    latitude: 40.70245,
-    longitude: -74.01282,
-  },
-  { title: "San Francisco Market & Drumm",
-    latitude: 37.79375,
-    longitude: -122.39587,
-  },
-  { title: "SJ South Market Park",
-    latitude: 37.33226,
-    longitude: -121.88968,
-  },
-  { title: "Vegas Mirage",
-    latitude: 36.12167,
-    longitude: -115.17204,
-  },
-  { title: "Köln Dom",
-    latitude: 50.94130,
-    longitude: 6.95665,
-  },
-  { title: "Bremen",
-    latitude: 53.0758,
-    longitude: 8.8072,
-  },
-  { title: "Graz",
-    latitude: 47.07245,
-    longitude: 15.44092,
-  },
-  { title: "London St Giles High St",
-    latitude: 51.51556,
-    longitude: -0.12681,
-  },
-  { title: "Moscow",
-    latitude: 55.75412,
-    longitude: 37.62048,
-  },
-  { title: "Paris Champ de Mars",
-    latitude: 48.85601,
-    longitude: 2.29661,
-  },
-  { title: "Warsaw",
-    latitude: 52.23242,
-    longitude: 21.00913,
-  },
-  { title: "Tokio",
-    latitude: 35.69091,
-    longitude: 139.69481,
-  },
-]
-var centerPos = { latitude: locationPresets[0].latitude,
-                  longitude: locationPresets[0].longitude };
+var presetsFile = "presets.json";
+var centerPos;
 var map, tiles, items;
 var baseTileID, baseTileSize, centerOffset;
 var tilesFromCenter = 3;
@@ -87,53 +25,134 @@ window.onload = function() {
   document.querySelector('a-scene').addEventListener('enter-vr', event => {
     document.querySelector("#introDialogCloseButton").click();
   });
+
   // Load location presets and subdialog.
-  let presetSel = document.querySelector("#locationPresets");
-  let locLatInput = document.querySelector("#locLatitude");
-  let locLonInput = document.querySelector("#locLongitude");
-  presetSel.onchange = function(event) {
-    if (event.target.selectedIndex >= 0 && event.target.value >= 0) {
-      let preset = locationPresets[event.target.value];
-      locLatInput.value = preset.latitude;
-      locLonInput.value = preset.longitude;
+  fetch(presetsFile)
+  .then((response) => {
+    if (response.ok) {
+      return response.json();
     }
     else {
-      locLatInput.value = "";
-      locLonInput.value = "";
-      if (event.target.value == -2) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          locLatInput.value = pos.coords.latitude;
-          locLonInput.value = pos.coords.longitude;
+      throw "HTTP Error " + response.status;
+    }
+  })
+  .then((locationPresets) => {
+    let presetSel = document.querySelector("#locationPresets");
+    let menu = document.querySelector("#menu");
+    let locLatInput = document.querySelector("#locLatitude");
+    let locLonInput = document.querySelector("#locLongitude");
+    presetSel.onchange = function(event) {
+      if (event.target.selectedIndex >= 0 && event.target.value >= 0) {
+        let preset = locationPresets[event.target.value];
+        locLatInput.value = preset.latitude;
+        locLonInput.value = preset.longitude;
+      }
+      else {
+        locLatInput.value = "";
+        locLonInput.value = "";
+        if (event.target.value == -2) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            locLatInput.value = pos.coords.latitude;
+            locLonInput.value = pos.coords.longitude;
+          });
+        }
+      }
+    };
+    let mItemHeight = 0.1;
+    let normalBgColor = "#404040";
+    let normalTextColor = "#CCCCCC";
+    let hoverBgColor = "#606060";
+    let hoverTextColor = "yellow";
+    let menuHeight = mItemHeight * locationPresets.length;
+    menu.setAttribute("height", menuHeight);
+    menu.setAttribute("position", {x: 0, y: 1.6 - menuHeight / 6, z: -1});
+    for (let i = -2; i < locationPresets.length; i++) {
+      var opt = document.createElement("option");
+      opt.value = i;
+      if (i == -2) { opt.text = "Get Your Location"; }
+      else if (i == -1) { opt.text = "Set Custom Location"; }
+      else { opt.text = locationPresets[i].title; }
+      presetSel.add(opt, null);
+      if (i >= 0) {
+        // menu entity
+        var menuitem = document.createElement("a-box");
+        menuitem.setAttribute("position", {x: 0, y: menuHeight / 2 - (i + 0.5) * mItemHeight, z: 0});
+        menuitem.setAttribute("height", mItemHeight);
+        menuitem.setAttribute("depth", 0.001);
+        menuitem.setAttribute("text", {value: opt.text, color: normalTextColor, xOffset: 0.03});
+        menuitem.setAttribute("color", normalBgColor);
+        menuitem.setAttribute("data-index", i);
+        menuitem.addEventListener("mouseenter", event => {
+          event.target.setAttribute("text", {color: hoverTextColor});
+          event.target.setAttribute("color", hoverBgColor);
         });
+        menuitem.addEventListener("mouseleave", event => {
+          event.target.setAttribute("text", {color: normalTextColor});
+          event.target.setAttribute("color", normalBgColor);
+        });
+        menuitem.addEventListener("click", event => {
+          let preset = locationPresets[event.target.dataset.index];
+          centerPos.latitude = preset.latitude;
+          centerPos.longitude = preset.longitude;
+          loadScene();
+        });
+        menu.appendChild(menuitem);
       }
     }
-  };
-  for (let i = -2; i < locationPresets.length; i++) {
-    var opt = document.createElement("option");
-    opt.value = i;
-    if (i == -2) { opt.text = "Get Your Location"; }
-    else if (i == -1) { opt.text = "Set Custom Location"; }
-    else { opt.text = locationPresets[i].title; }
-    presetSel.add(opt, null);
-  }
-  presetSel.value = 0;
-  locLatInput.value = centerPos.latitude;
-  locLonInput.value = centerPos.longitude;
-  document.querySelector("#locationLoadButton").onclick = event => {
-    centerPos.latitude = locLatInput.valueAsNumber;
-    centerPos.longitude = locLonInput.valueAsNumber;
+    centerPos = { latitude: locationPresets[0].latitude,
+                  longitude: locationPresets[0].longitude };
+    presetSel.value = 0;
+    locLatInput.value = centerPos.latitude;
+    locLonInput.value = centerPos.longitude;
+    document.querySelector("#locationLoadButton").onclick = event => {
+      centerPos.latitude = locLatInput.valueAsNumber;
+      centerPos.longitude = locLonInput.valueAsNumber;
+      loadScene();
+    };
+    // Load objects into scene.
     loadScene();
-  };
-  // Load objects into scene.
+  })
+  .catch((reason) => { console.log(reason); });
+
+  // Hook up menu button iside the VR.
+  let leftHand = document.querySelector("#left-hand");
+  let rightHand = document.querySelector("#right-hand");
+  // Vive controllers, Windows Motion controllers
+  leftHand.addEventListener("menudown", toggleMenu, false);
+  rightHand.addEventListener("menudown", toggleMenu, false);
+  // Oculus controllers (guessing on the button)
+  leftHand.addEventListener("surfacedown", toggleMenu, false);
+  rightHand.addEventListener("surfacedown", toggleMenu, false);
+  // Keyboard press
+  document.querySelector("body").addEventListener("keydown", event => {
+    if (event.key == "m") { toggleMenu(event); }
+  });
+
+  // Set variables for base objects.
   map = document.querySelector("#map");
   tiles = document.querySelector("#tiles");
   items = document.querySelector("#items");
-  loadScene();
+}
+
+function toggleMenu(event) {
+  console.log("menu pressed!");
+  let menu = document.querySelector("#menu");
+  if (menu.getAttribute("visible") == false) {
+    menu.setAttribute("visible", true);
+    document.querySelector("#left-hand").setAttribute("mixin", "handcursor");
+    document.querySelector("#right-hand").setAttribute("mixin", "handcursor");
+  }
+  else {
+    menu.setAttribute("visible", false);
+    document.querySelector("#left-hand").setAttribute("mixin", "teleport");
+    document.querySelector("#right-hand").setAttribute("mixin", "teleport");
+  }
 }
 
 function loadScene() {
   while (tiles.firstChild) { tiles.removeChild(tiles.firstChild); }
   while (items.firstChild) { items.removeChild(items.firstChild); }
+  document.querySelector("#cameraRig").object3D.position.set(0, 0, 0);
   loadGroundTiles();
   loadTrees();
   loadBuildings();

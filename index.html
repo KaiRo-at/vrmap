@@ -67,15 +67,18 @@
       </a-entity>
       <a-entity id="cameraRig" position="0 0 0" movement-controls="speed: 1; fly: true; camera: #head;" position-limit="ymin: 0; ymax: 100;">
         <!-- camera -->
-        <a-entity id="head" camera="active: true" look-controls position="0 1.6 0"></a-entity>
+        <a-entity id="head" camera="active: true" look-controls position="0 1.6 0"><a-entity cursor="rayOrigin: mouse;" raycaster="far: 2;"></a-entity></a-entity>
         <!-- hand controls -->
         <a-mixin id="teleport"
                  teleport-controls="cameraRig: #cameraRig; button: trigger; teleportOrigin: #head; collisionEntities: #ground; curveShootingSpeed: 25; curveNumberPoints: 100;"
         ></a-mixin>
+        <a-mixin id="handcursor" cursor="downEvents: triggerdown; upEvents: triggerup;" raycaster="far: 2; showLine: true;"></a-mixin>
         <a-entity id="left-hand" mixin="teleport"
                   oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"></a-entity>
         <a-entity id="right-hand" mixin="teleport"
                   oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right;"></a-entity>
+        <!-- menu -->
+        <a-plane id="menu" color="#404040" position="0 2 -1" visible="false"></a-entity>
       </a-entity>
     </a-scene>
   </body>
