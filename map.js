@@ -123,6 +123,15 @@ window.onload = function() {
   // Oculus controllers (guessing on the button)
   leftHand.addEventListener("surfacedown", toggleMenu, false);
   rightHand.addEventListener("surfacedown", toggleMenu, false);
+  // Daydream and GearVR controllers - we need to filter as Vive and Windows Motion have the same event.
+  var toggleMenuOnStandalone = function(event) {
+    if (event.target.components["daydream-controls"].controllerPresent ||
+        event.target.components["gearvr-controls"].controllerPresent) {
+      toggleMenu(event);
+    }
+  }
+  leftHand.addEventListener("trackpaddown", toggleMenuOnStandalone, false);
+  rightHand.addEventListener("trackpaddown", toggleMenuOnStandalone, false);
   // Keyboard press
   document.querySelector("body").addEventListener("keydown", event => {
     if (event.key == "m") { toggleMenu(event); }

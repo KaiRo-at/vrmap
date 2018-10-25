@@ -74,9 +74,11 @@
         ></a-mixin>
         <a-mixin id="handcursor" cursor="downEvents: triggerdown; upEvents: triggerup;" raycaster="far: 2; showLine: true;"></a-mixin>
         <a-entity id="left-hand" mixin="teleport"
-                  oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"></a-entity>
+                  oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"
+                  daydream-controls="hand: left" gearvr-controls="hand: left"></a-entity>
         <a-entity id="right-hand" mixin="teleport"
-                  oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right;"></a-entity>
+                  oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right;"
+                  daydream-controls="hand: right" gearvr-controls="hand: right"></a-entity>
         <!-- menu -->
         <a-plane id="menu" color="#404040" position="0 2 -1" visible="false"></a-entity>
       </a-entity>
