@@ -75,6 +75,7 @@ function getRelativePositionFromTilepos(tilepos, reference) {
 }
 
 function getPositionStringFromTilepos(tilepos, offset) {
+  // This is for generating the string used in a position attribute - but should not be needed in practice as setAttribute() can take an object.
   var pos = getPositionFromTilepos(tilepos, offset);
   return "" + pos.x + " " + pos.y + " " + pos.z;
 }

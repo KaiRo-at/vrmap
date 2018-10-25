@@ -93,7 +93,7 @@ function addBuilding(jsonFeature) {
       for (let point of way) {
         let tpos = tileposFromLatlon(latlonFromJSON(point));
         let ppos = getRelativePositionFromTilepos(tpos, itemPos);
-        wayPoints.push("" + ppos.x + " " + ppos.z);
+        wayPoints.push({x: ppos.x, y: ppos.z});
       }
       if (!outerPoints.length) {
         outerPoints = wayPoints;
@@ -102,13 +102,20 @@ function addBuilding(jsonFeature) {
         innerWays.push(wayPoints);
       }
     }
-    // Note that for now only one inner way (hole) is supported.
-    item.setAttribute("geometry", "primitive: building; outerPoints: " + outerPoints.join(", ") + "; " +
-                                  (innerWays.length ? "innerPaths: " + innerWays.map(x => x.join(", ")).join(" / ") + "; " : "") +
-                                  (height ? "height: " + height + "; " : "") +
-                                  (minHeight ? "minHeight: " + minHeight + "; " : ""));
-    item.setAttribute("material", "color: " + color + ";");
-    item.setAttribute("position", getPositionStringFromTilepos(itemPos));
+    // Note that for now only one outer way is supported.
+    buildingProperties = {primitive: "building", outerPoints: outerPoints};
+    if (innerWays.length) {
+      buildingProperties.innerPaths = innerWays; //innerWays.map(x => x.join(", ")).join(" / ");
+    }
+    if (height) {
+      buildingProperties.height = height;
+    }
+    if (minHeight) {
+      buildingProperties.minHeight = minHeight;
+    }
+    item.setAttribute("geometry", buildingProperties);
+    item.setAttribute("material", {color: color});
+    item.setAttribute("position", getPositionFromTilepos(itemPos));
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[0][0][1] + "/" + jsonFeature.geometry.coordinates[0][0][0]);
     items.appendChild(item);
     resolve();
@@ -118,10 +125,35 @@ function addBuilding(jsonFeature) {
 
 AFRAME.registerGeometry('building', {
   schema: {
-    outerPoints: { type: 'array', default: ['0 0', '1 0', '1 1', '0 1'], },
+    outerPoints: {
+      parse: function (value) {
+        if (typeof value === 'string' && value.length) {
+          // e.g. "x1 y1, x2 y2, x3 y3, x4 y4"
+          return value.split(',').map(val => AFRAME.utils.coordinates.parse(val));
+        }
+        else if (typeof value === 'object') {
+          // assume we got an object we can use directly
+          return value;
+        }
+        else {
+          return [];
+        }
+      },
+      default: [{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1}],
+    },
     innerPaths: {
       parse: function (value) {
-        return value.length ? value.split('/').map(part => part.split(",").map(val => val.trim())) : [];
+        if (typeof value === 'string' && value.length) {
+          // e.g. "x1 y1, x2 y2, x3 y3, x4 y4 / x5 y5, x6 y6, x7 y7" describes two paths (holes)
+          return value.split('/').map(part => part.split(',').map(val => AFRAME.utils.coordinates.parse(val)));
+        }
+        else if (typeof value === 'object') {
+          // assume we got an object we can use directly
+          return value;
+        }
+        else {
+          return [];
+        }
       },
       default: [],
     },
@@ -130,18 +162,10 @@ AFRAME.registerGeometry('building', {
   },
 
   init: function (data) {
-    var opoints = data.outerPoints.map(function (point) {
-        var coords = point.split(' ').map(x => parseFloat(x));
-        return new THREE.Vector2(coords[0], coords[1]);
-    });
-    var ipaths = data.innerPaths.map(way => way.map(function (point) {
-        var coords = point.split(' ').map(x => parseFloat(x));
-        return new THREE.Vector2(coords[0], coords[1]);
-    }));
-    var shape = new THREE.Shape(opoints);
+    var shape = new THREE.Shape(data.outerPoints);
     var outerLength = shape.getLength();
-    if (ipaths.length) {
-      for (ipoints of ipaths) {
+    if (data.innerPaths.length) {
+      for (ipoints of data.innerPaths) {
         var holePath = new THREE.Path(ipoints);
         shape.holes.push(holePath);
       }

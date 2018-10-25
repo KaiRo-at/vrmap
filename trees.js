@@ -42,23 +42,23 @@ function addTree(jsonFeature) {
     if (tags["leaf_type"] == "needleleaved") { // special shape for needle-leaved trees
       var trunkHeight = height * 0.5;
       var crownHeight = height * 0.8;
-      trunk.setAttribute("geometry", "primitive: cylinder; height: " + trunkHeight + "; radius: " + trunkRadius + ";");
-      trunk.setAttribute("material", "color: #b27f36;");
-      trunk.setAttribute("position", "0 " + (trunkHeight / 2) + " 0");
-      crown.setAttribute("geometry", "primitive: cone; height: " + crownHeight + "; radiusBottom: " + crownRadius + "; radiusTop: 0;");
-      crown.setAttribute("material", "color: #80ff80;");
-      crown.setAttribute("position", "0 " + (height - crownHeight / 2) + " 0");
+      trunk.setAttribute("geometry", {primitive: "cylinder", height: trunkHeight, radius: trunkRadius});
+      trunk.setAttribute("material", {color: "#b27f36"});
+      trunk.setAttribute("position", {x: 0, y: (trunkHeight / 2), z: 0});
+      crown.setAttribute("geometry", {primitive: "cone", height: crownHeight, radiusBottom: crownRadius, radiusTop: 0});
+      crown.setAttribute("material", {color: "#80ff80"});
+      crown.setAttribute("position", {x: 0, y: (height - crownHeight / 2), z: 0});
     }
     else { // use a simple typical broadleaved-type shape
       var trunkHeight = height - crownRadius;
-      trunk.setAttribute("geometry", "primitive: cylinder; height: " + trunkHeight + "; radius: " + trunkRadius + ";");
-      trunk.setAttribute("material", "color: #b27f36;");
-      trunk.setAttribute("position", "0 " + (trunkHeight / 2) + " 0");
-      crown.setAttribute("geometry", "primitive: sphere; radius: " + crownRadius + ";");
-      crown.setAttribute("material", "color: #80ff80;");
-      crown.setAttribute("position", "0 " + trunkHeight + " 0");
+      trunk.setAttribute("geometry", {primitive: "cylinder", height: trunkHeight, radius: trunkRadius});
+      trunk.setAttribute("material", {color: "#b27f36"});
+      trunk.setAttribute("position", {x: 0, y: (trunkHeight / 2), z: 0});
+      crown.setAttribute("geometry", {primitive: "sphere", radius: crownRadius});
+      crown.setAttribute("material", {color: "#80ff80"});
+      crown.setAttribute("position", {x: 0, y: trunkHeight, z: 0});
     }
-    item.setAttribute("position", getPositionStringFromTilepos(itemPos));
+    item.setAttribute("position", getPositionFromTilepos(itemPos));
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[1] + "/" + jsonFeature.geometry.coordinates[0]);
     item.appendChild(trunk);
     item.appendChild(crown);

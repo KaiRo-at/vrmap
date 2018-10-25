@@ -33,8 +33,8 @@ function addTile(relX, relY) {
     tile.setAttribute("class", "tile");
     tile.setAttribute("data-reltilex", relX);
     tile.setAttribute("data-reltiley", relY);
-    tile.setAttribute("rotation", "-90 0 0");
-    tile.setAttribute("position", getPositionStringFromTilepos({x: relX, y: relY}, {x: 0.5, y: 0.5}));
+    tile.setAttribute("rotation", {x: -90, y: 0, z: 0});
+    tile.setAttribute("position", getPositionFromTilepos({x: relX, y: relY}, {x: 0.5, y: 0.5}));
     tile.setAttribute("src", tileServer + tileZoom + "/" + (baseTileID.x + relX) + "/" + (baseTileID.y + relY) + ".png");
     tile.setAttribute("width", baseTileSize);
     tile.setAttribute("height", baseTileSize);
