@@ -25,12 +25,10 @@ function loadTrees() {
 
 function addTree(jsonFeature) {
   return new Promise((resolve, reject) => {
-    var itemPos = tileposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates));
+    var itemPos = worldposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates));
     var tags = jsonFeature.properties.tags ? jsonFeature.properties.tags : jsonFeature.properties;
     var item = document.createElement("a-entity");
     item.setAttribute("class", "tree");
-    item.setAttribute("data-reltilex", Math.floor(itemPos.x));
-    item.setAttribute("data-reltiley", Math.floor(itemPos.y));
     var trunk = document.createElement("a-entity");
     trunk.setAttribute("class", "trunk");
     var crown = document.createElement("a-entity");
@@ -58,7 +56,7 @@ function addTree(jsonFeature) {
       crown.setAttribute("material", {color: "#80ff80"});
       crown.setAttribute("position", {x: 0, y: trunkHeight, z: 0});
     }
-    item.setAttribute("position", getPositionFromTilepos(itemPos));
+    item.setAttribute("position", itemPos);
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[1] + "/" + jsonFeature.geometry.coordinates[0]);
     item.appendChild(trunk);
     item.appendChild(crown);

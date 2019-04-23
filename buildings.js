@@ -44,7 +44,7 @@ function loadBuildings() {
 
 function addBuilding(jsonFeature) {
   return new Promise((resolve, reject) => {
-    var itemPos = tileposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates[0][0]));
+    var itemPos = worldposFromLatlon(latlonFromJSON(jsonFeature.geometry.coordinates[0][0]));
     var tags = jsonFeature.properties.tags ? jsonFeature.properties.tags : jsonFeature.properties;
     var btype = tags.building;
     if (tags.shelter == "yes") { btype = "shelter"; }
@@ -91,8 +91,8 @@ function addBuilding(jsonFeature) {
     for (let way of jsonFeature.geometry.coordinates) {
       let wayPoints = [];
       for (let point of way) {
-        let tpos = tileposFromLatlon(latlonFromJSON(point));
-        let ppos = getRelativePositionFromTilepos(tpos, itemPos);
+        let tpos = worldposFromLatlon(latlonFromJSON(point));
+        let ppos = getRelativePositionFromWorldpos(tpos, itemPos);
         wayPoints.push({x: ppos.x, y: ppos.z});
       }
       if (!outerPoints.length) {
@@ -115,7 +115,7 @@ function addBuilding(jsonFeature) {
     }
     item.setAttribute("geometry", buildingProperties);
     item.setAttribute("material", {color: color});
-    item.setAttribute("position", getPositionFromTilepos(itemPos));
+    item.setAttribute("position", itemPos);
     item.setAttribute("data-gpspos", jsonFeature.geometry.coordinates[0][0][1] + "/" + jsonFeature.geometry.coordinates[0][0][0]);
     items.appendChild(item);
     resolve();
