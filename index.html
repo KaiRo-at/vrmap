@@ -10,7 +10,6 @@
     <meta name="description" content="VR Map">
     <link rel="stylesheet" href="vrmap.css">
     <script src="https://aframe.io/aframe/dist/aframe-master.min.js"></script>
-    <script src="https://unpkg.com/aframe-animation-component/dist/aframe-animation-component.min.js"></script>
     <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
     <script src="https://unpkg.com/aframe-extras/dist/aframe-extras.controls.min.js"></script>
     <script src="https://unpkg.com/aframe-extras/dist/aframe-extras.pathfinding.min.js"></script><!-- errors on controls if not present? -->
@@ -58,7 +57,7 @@
       </p>
     </div>
     <a-scene background="color: #CFEBFD">
-      <a-entity id="ground" geometry="primitive: box; width: 2000; height: 0.01; depth: 2000" position="0 -0.01 0" material="transparent: true; opacity: 0.01"></a-entity>
+      <a-entity id="ground" geometry="primitive: box; width: 2000; height: 0.01; depth: 2000;" position="0 -0.01 0" material="transparent: true; opacity: 0.01;"></a-entity>
       <a-entity id="map">
         <a-entity id="tiles">
         </a-entity>
@@ -67,18 +66,18 @@
       </a-entity>
       <a-entity id="cameraRig" position="0 0 0" movement-controls="speed: 1; fly: true; camera: #head;" position-limit="ymin: 0; ymax: 100;">
         <!-- camera -->
-        <a-entity id="head" camera="active: true" look-controls position="0 1.6 0"><a-entity cursor="rayOrigin: mouse;" raycaster="far: 2;"></a-entity></a-entity>
+        <a-entity id="head" camera="active: true" look-controls position="0 1.6 0"><a-entity cursor="rayOrigin: mouse;" raycaster="far: 2; objects: .clickable;"></a-entity></a-entity>
         <!-- hand controls -->
         <a-mixin id="teleport"
                  teleport-controls="cameraRig: #cameraRig; button: trigger; teleportOrigin: #head; collisionEntities: #ground; curveShootingSpeed: 25; curveNumberPoints: 100;"
         ></a-mixin>
-        <a-mixin id="handcursor" cursor="downEvents: triggerdown; upEvents: triggerup;" raycaster="far: 2; showLine: true;"></a-mixin>
+        <a-mixin id="handcursor" cursor="downEvents: triggerdown; upEvents: triggerup;" raycaster="far: 2; showLine: true; objects: .clickable;"></a-mixin>
         <a-entity id="left-hand" mixin="teleport"
-                  oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left;"
-                  daydream-controls="hand: left" gearvr-controls="hand: left"></a-entity>
+                  oculus-touch-controls="hand: left;" vive-controls="hand: left;" windows-motion-controls="hand: left;"
+                  daydream-controls="hand: left;" gearvr-controls="hand: left;"></a-entity>
         <a-entity id="right-hand" mixin="teleport"
-                  oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right;"
-                  daydream-controls="hand: right" gearvr-controls="hand: right"></a-entity>
+                  oculus-touch-controls="hand: right;" vive-controls="hand: right;" windows-motion-controls="hand: right;"
+                  daydream-controls="hand: right;" gearvr-controls="hand: right;"></a-entity>
         <!-- menu -->
         <a-plane id="menu" color="#404040" position="0 2 -1" visible="false"></a-entity>
       </a-entity>

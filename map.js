@@ -76,6 +76,7 @@ window.onload = function() {
       if (i >= 0) {
         // menu entity
         var menuitem = document.createElement("a-box");
+        menuitem.setAttribute("class", "clickable");
         menuitem.setAttribute("position", {x: 0, y: menuHeight / 2 - (i + 0.5) * mItemHeight, z: 0});
         menuitem.setAttribute("height", mItemHeight);
         menuitem.setAttribute("depth", 0.001);
@@ -148,11 +149,13 @@ function toggleMenu(event) {
   let menu = document.querySelector("#menu");
   if (menu.getAttribute("visible") == false) {
     menu.setAttribute("visible", true);
+    document.querySelector("#cameraRig").setAttribute("movement-controls", {enabled: false});
     document.querySelector("#left-hand").setAttribute("mixin", "handcursor");
     document.querySelector("#right-hand").setAttribute("mixin", "handcursor");
   }
   else {
     menu.setAttribute("visible", false);
+    document.querySelector("#cameraRig").setAttribute("movement-controls", {enabled: true});
     document.querySelector("#left-hand").setAttribute("mixin", "teleport");
     document.querySelector("#right-hand").setAttribute("mixin", "teleport");
   }

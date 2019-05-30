@@ -15,7 +15,7 @@ function loadTrees() {
         }
         else {
           console.log("Couldn't draw tree with geometry type " +
-                      feature.geometry.type);
+                      feature.geometry.type + " (" + feature.id + ")");
         }
       }
       console.log("Loaded " + count + " trees.");
