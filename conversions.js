@@ -21,6 +21,23 @@ function tileposFromLatlon(latlon) {
           y: ytilepos - baseTileID.y};
 }
 
+function worldposFromLatlon(latlon) {
+  if (!centerOffset) {
+    centerOffset = tileposFromLatlon(centerPos);
+  }
+  /* Get position x/z numbers from degree-based latitude/longitude values */
+  var n = Math.pow(2, tileZoom);
+  var lat_rad = latlon.latitude / 180 * Math.PI;
+  var xtilepos = n * ((latlon.longitude + 180) / 360);
+  var ytilepos = n * (1 - (Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math.PI)) / 2;
+
+  return {
+    x: baseTileSize * (xtilepos - baseTileID.x - centerOffset.x),
+    y: 0,
+    z: baseTileSize * (ytilepos - baseTileID.y - centerOffset.y)
+  };
+}
+
 function tilesizeFromID(tileid) {
   /* Get a tile size in meters from x/y tile numbers */
   /* tileid is an object with x and y members telling the slippy map tile ID */
@@ -64,14 +81,12 @@ function getPositionFromTilepos(tilepos, offset) {
           z: posresult.y};
 }
 
-function getRelativePositionFromTilepos(tilepos, reference) {
-  posresult = {
-    x: baseTileSize * (tilepos.x - reference.x),
-    y: baseTileSize * (tilepos.y - reference.y),
-  }
-  return {x: posresult.x,
-          y: 0,
-          z: posresult.y};
+function getRelativePositionFromWorldpos(worldpos, reference) {
+  return {
+    x: worldpos.x - reference.x,
+    y: 0,
+    z: worldpos.z - reference.z,
+  };
 }
 
 function getPositionStringFromTilepos(tilepos, offset) {
